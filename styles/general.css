@@ -1,0 +1,30 @@
+html {
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+}
+
+#world {
+  background: #000;
+  height: 100%;
+  outline: none;
+  position: absolute;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  width: 100%;
+}
+
+#world .canvas {
+  position: absolute;
+  touch-action: none;
+}
+
+#world .canvas2D {
+  pointer-events: none;
+  position: absolute;
+}
