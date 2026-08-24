@@ -28,3 +28,15 @@ body {
   pointer-events: none;
   position: absolute;
 }
+
+.controls {
+  position: absolute;
+  inset-block-start: 24px;
+  inset-inline: 24px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.controls *:is(input, button, select) {
+  pointer-events: all;
+}

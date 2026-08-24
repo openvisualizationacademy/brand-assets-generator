@@ -17,6 +17,11 @@
     <script src="scripts/index.js" type="module"></script>
   </head>
   <body>
+    <form onsubmit="return false" class="controls">
+      <label>
+        <button name="randomize" type="button" onclick="app.world.logo.randomize()">Randomize</button>
+      </label>
+    </form>
     <div id="world">
       <canvas class="canvas"></canvas>
       <div class="canvas2D"></div>

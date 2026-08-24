@@ -9,9 +9,44 @@ export default class Logo {
     this.steps = 64 - 1;
 
     // Will store references to drawn lines
+    // this.list = [];
+
+    // Will be populated on update function
     this.list = [];
 
+    // Define whether to use logo shape or random coordinates
+    this.mode = "logo"; // logo|random
+
     this.setup();
+  }
+
+  randomizeCoordinates() {
+    
+    // Get random in from -6 to 6
+    const units = 6;
+    const randomPosition = d3.randomInt(-units, units + 1);
+
+    // Get an array of two objects
+    const randomized = ["first", "last"].map(d => ({
+      a: [randomPosition(), randomPosition(), randomPosition()],
+      b: [randomPosition(), randomPosition(), randomPosition()]
+    }));
+
+    return randomized;
+  }
+
+  get lines() {
+
+    // Assume mode is "logo" 
+    let extremes = this.world.app.data.lines;
+    
+    // If mode is "random"
+    if (this.mode === "random") {
+      // Randomize first and last line coordinates
+      extremes = this.randomizeCoordinates();
+    }
+
+    return this.blend(this.steps, extremes);
   }
 
   blend(steps, extremes) {
@@ -55,6 +90,7 @@ export default class Logo {
 
     return lines;
   }
+
   palette(t) {
 
     if (!this.colorScale) {
@@ -65,15 +101,39 @@ export default class Logo {
     return d3.interpolateYlOrRd(this.colorScale(t));
   }
 
-  setup() {
-    const lines = this.blend(this.steps, this.world.app.data.lines);;
+  clearScene() {
+    const scene = this.world.scene.instance;
 
-    console.log(lines);
+    // Iterate backwards since we're removing while iterating
+    while (scene.children.length > 0) {
+      const child = scene.children[0];
 
-    lines.forEach((line, index) => {
+      // Dispose geometry
+      if (child.geometry) {
+        child.geometry.dispose();
+      }
+
+      // Dispose material(s) - could be an array
+      if (child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach(material => material.dispose());
+        } else {
+          child.material.dispose();
+        }
+      }
+
+      scene.remove(child);
+    }
+}
+
+  renderLines() {
+
+    this.clearScene();
+
+    this.lines.forEach((line, index) => {
 
       // Get value between 0-1
-      const t = index / (lines.length - 1);
+      const t = index / (this.lines.length - 1);
 
       const material = new THREE.LineBasicMaterial( { color: this.palette(t) } );
       const points = [];
@@ -83,44 +143,21 @@ export default class Logo {
       const mesh = new THREE.Line( geometry, material );
 
       this.world.scene.instance.add( mesh );
-
     });
-    
-    // photos.forEach((photo) => {
-    //   const w = photo.w * 0.001;
-    //   const h = photo.h * 0.001;
-    //   const x = photo.x * 0.75;
-    //   const y = photo.y * 0.75;
-    //   const z = photo.z * 0.75;
+  }
 
-    //   const path = `./media/${photo.filename}`;
-    //   const texture = this.world.textureLoader.load(path);
+  randomize() {
+    console.log(this);
+    this.mode = "random";
+    this.renderLines();
+  }
 
-    //   const geometry = new THREE.PlaneGeometry(w, h);
-    //   const material = new THREE.MeshBasicMaterial({
-    //     map: texture,
-    //     side: THREE.FrontSide,
-    //   });
-
-    //   const plane = new THREE.Mesh(geometry, material);
-    //   plane.position.set(x, y, z);
-    //   plane.userData.type = "cat";
-    //   plane.userData.title = photo.title;
-
-    //   this.list.push(plane);
-    //   this.world.scene.instance.add(plane);
-    // });
+  setup() {
+    this.renderLines()
   }
 
   update() {
-    // this.list.forEach((plane) => {
-    //   plane.lookAt(this.world.camera.instance.position);
+    
 
-    //   if (plane.userData.hover) {
-    //     plane.material.color.set(0xffff00);
-    //   } else {
-    //     plane.material.color.set(0xffffff);
-    //   }
-    // });
   }
 }
